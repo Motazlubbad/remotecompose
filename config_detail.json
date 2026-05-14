@@ -9,7 +9,7 @@
     {
       "type": "text",
       "id": "2",
-      "text": "Feature Showcase",
+      "text": "mezoo",
       "color": "#1A1A2E",
       "fontSize": 26
     },
@@ -33,12 +33,12 @@
     {
       "type": "card",
       "id": "5",
+      "paddingH": 18,
+      "paddingV": 14,
       "color": "#FFFFFF",
       "cornerRadius": 16,
       "borderColor": "#E2E8F0",
       "borderWidth": 1,
-      "paddingH": 18,
-      "paddingV": 14,
       "children": [
         {
           "type": "text",
@@ -55,7 +55,7 @@
         {
           "type": "text",
           "id": "5b",
-          "text": "Text, buttons, cards, rows, spacers, dividers \u2014 all rendered natively via Remote Compose.",
+          "text": "Text, buttons, cards, rows, spacers, dividers — all rendered natively via Remote Compose.",
           "color": "#6B7280",
           "fontSize": 12
         }
@@ -69,12 +69,12 @@
     {
       "type": "card",
       "id": "7",
+      "paddingH": 18,
+      "paddingV": 14,
       "color": "#FFFFFF",
       "cornerRadius": 16,
       "borderColor": "#E2E8F0",
       "borderWidth": 1,
-      "paddingH": 18,
-      "paddingV": 14,
       "children": [
         {
           "type": "text",
@@ -91,7 +91,7 @@
         {
           "type": "text",
           "id": "7b",
-          "text": "Buttons fire HostAction events. The app handles them \u2014 toasts, navigation, or custom logic.",
+          "text": "Buttons fire HostAction events. The app handles them — toasts, navigation, or custom logic.",
           "color": "#6B7280",
           "fontSize": 12
         }
@@ -105,12 +105,12 @@
     {
       "type": "card",
       "id": "9",
+      "paddingH": 18,
+      "paddingV": 14,
       "color": "#FFFFFF",
       "cornerRadius": 16,
       "borderColor": "#E2E8F0",
       "borderWidth": 1,
-      "paddingH": 18,
-      "paddingV": 14,
       "actionName": "card_clicked",
       "children": [
         {
