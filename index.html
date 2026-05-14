@@ -566,7 +566,7 @@ async function deployConfigLocal(){
         const endpoint=isLocalhost() ? '/api/deploy' : 'http://localhost:8080/api/deploy';
         const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({file:currentFile(),label:screens[activeScreen].label,config:getConfig()})});
         const data=await r.json().catch(()=>({}));
-        if(r.ok){setDeploy('deployed');showToast(screens[activeScreen].label+' deployed via local GitHub auth','cloud_done');pollActionStatus('')}
+        if(r.ok){setDeploy('deployed');showToast(screens[activeScreen].label+' deployed via local GitHub auth','cloud_done');pollLocalActionStatus()}
         else{setDeploy('err');showToast('Deploy failed: '+(data.error||r.status),'error',true)}
     }catch(e){setDeploy('err');showToast('Local deploy server unavailable: open http://localhost:8080','error',true)}
 }
@@ -621,6 +621,24 @@ async function pollActionStatus(token){
             }
         }catch(e){break}
         await new Promise(r=>setTimeout(r,4000));
+    }
+    stopDeployTimer();
+}
+
+async function pollLocalActionStatus(){
+    await new Promise(r=>setTimeout(r,3000));
+    const endpoint=isLocalhost()?'/api/workflow-status':'http://localhost:8080/api/workflow-status';
+    for(let i=0;i<80;i++){
+        try{
+            const resp=await fetch(endpoint);
+            if(!resp.ok)break;
+            const run=await resp.json();
+            if(run.status==='completed'){
+                if(run.conclusion==='success'){setDeploy('action_done');return}
+                setDeploy('action_fail');return
+            }
+        }catch(e){break}
+        await new Promise(r=>setTimeout(r,3000));
     }
     stopDeployTimer();
 }

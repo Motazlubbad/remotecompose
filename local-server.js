@@ -28,7 +28,7 @@ function sendJson(res, status, body) {
     'Content-Type': 'application/json; charset=UTF-8',
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
   });
   res.end(JSON.stringify(body));
 }
@@ -88,6 +88,30 @@ async function deploy(req, res) {
   }
 }
 
+function workflowStatus(_req, res) {
+  try {
+    const output = execFileSync('gh', [
+      'run',
+      'list',
+      '--repo',
+      `${owner}/${repo}`,
+      '--workflow',
+      'convert.yml',
+      '--limit',
+      '1',
+      '--json',
+      'databaseId,status,conclusion,updatedAt,createdAt,url',
+    ], { encoding: 'utf8' });
+    const run = JSON.parse(output)[0];
+    if (!run) {
+      return sendJson(res, 404, { error: 'No workflow runs found' });
+    }
+    sendJson(res, 200, run);
+  } catch (error) {
+    sendJson(res, 500, { error: error.message });
+  }
+}
+
 function serveStatic(req, res) {
   let pathname = decodeURIComponent(new URL(req.url, `http://localhost:${port}`).pathname);
   if (pathname === '/') pathname = '/index.html';
@@ -109,17 +133,21 @@ function serveStatic(req, res) {
 }
 
 http.createServer((req, res) => {
-  if (req.method === 'OPTIONS' && req.url === '/api/deploy') {
+  if (req.method === 'OPTIONS' && (req.url === '/api/deploy' || req.url === '/api/workflow-status')) {
     res.writeHead(204, {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Headers': 'Content-Type',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     });
     res.end();
     return;
   }
   if (req.method === 'POST' && req.url === '/api/deploy') {
     deploy(req, res);
+    return;
+  }
+  if (req.method === 'GET' && req.url === '/api/workflow-status') {
+    workflowStatus(req, res);
     return;
   }
   serveStatic(req, res);
