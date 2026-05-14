@@ -548,6 +548,9 @@ function cleanEl(el){
 async function copyJson(){const j=JSON.stringify(getConfig(),null,2);try{await navigator.clipboard.writeText(j)}catch{const t=document.createElement('textarea');t.value=j;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t)}showToast('JSON copied','content_copy')}
 async function deployConfig(){
     const token=document.getElementById('ghToken').value.trim();
+    if(!token&&location.hostname==='localhost'){
+        return deployConfigLocal();
+    }
     if(!token){showToast('Enter a GitHub token first','warning',true);document.getElementById('ghToken').focus();return}
     localStorage.setItem('gh_token',token);setDeploy('deploying');
     const fp=currentFile();
@@ -557,6 +560,16 @@ async function deployConfig(){
     const r=await fetch(`https://api.github.com/repos/${REPO}/${REPO_N}/contents/${fp}`,{method:'PUT',headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify(body)});
     if(r.ok){setDeploy('deployed');showToast(screens[activeScreen].label+' deployed!','cloud_done');pollActionStatus(token)}else{const e=await r.json();setDeploy('err');showToast('Deploy failed: '+(e.message||r.status),'error',true)}}
     catch(e){setDeploy('err');showToast('Deploy failed: '+e.message,'error',true)}}
+
+async function deployConfigLocal(){
+    setDeploy('deploying');
+    try{
+        const r=await fetch('/api/deploy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({file:currentFile(),label:screens[activeScreen].label,config:getConfig()})});
+        const data=await r.json().catch(()=>({}));
+        if(r.ok){setDeploy('deployed');showToast(screens[activeScreen].label+' deployed via local GitHub auth','cloud_done');pollActionStatus('')}
+        else{setDeploy('err');showToast('Deploy failed: '+(data.error||r.status),'error',true)}
+    }catch(e){setDeploy('err');showToast('Deploy failed: '+e.message,'error',true)}
+}
 
 let deployTimer=null;let deployStartTime=0;
 function setDeploy(s){
@@ -587,7 +600,8 @@ async function pollActionStatus(token){
     const wfFile='convert.yml';
     for(let i=0;i<60;i++){
         try{
-            const resp=await fetch(`https://api.github.com/repos/${REPO}/${REPO_N}/actions/workflows/${wfFile}/runs?per_page=1`,{headers:{Authorization:`Bearer ${token}`}});
+            const headers=token?{Authorization:`Bearer ${token}`}:{};
+            const resp=await fetch(`https://api.github.com/repos/${REPO}/${REPO_N}/actions/workflows/${wfFile}/runs?per_page=1`,{headers});
             if(!resp.ok)break;
             const data=await resp.json();
             const run=data.workflow_runs?.[0];
