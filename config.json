@@ -4,9 +4,9 @@
     {
       "type": "text",
       "id": "1",
-      "text": "motaz lubbad",
+      "text": "Rauf naber",
       "color": "#4A148C",
-      "fontSize": 32
+      "fontSize": 64
     },
     {
       "type": "spacer",
@@ -99,6 +99,11 @@
       "height": 10
     },
     {
+      "type": "spacer",
+      "id": "18",
+      "height": 6
+    },
+    {
       "type": "row",
       "id": "15",
       "children": [
@@ -126,7 +131,7 @@
     },
     {
       "type": "spacer",
-      "id": "18",
+      "id": "20",
       "height": 6
     },
     {
@@ -134,11 +139,6 @@
       "id": "19",
       "color": "#E0D6F2",
       "height": 1
-    },
-    {
-      "type": "spacer",
-      "id": "20",
-      "height": 6
     },
     {
       "type": "button",
