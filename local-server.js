@@ -72,7 +72,17 @@ async function deploy(req, res) {
       '-f', `sha=${existing.sha}`,
     ]);
 
-    sendJson(res, 200, { ok: true, commit: result.commit?.sha });
+    execFileSync('gh', [
+      'workflow',
+      'run',
+      'convert.yml',
+      '--repo',
+      `${owner}/${repo}`,
+      '--ref',
+      'main',
+    ], { encoding: 'utf8' });
+
+    sendJson(res, 200, { ok: true, commit: result.commit?.sha, workflow: 'convert.yml' });
   } catch (error) {
     sendJson(res, 500, { error: error.message });
   }
