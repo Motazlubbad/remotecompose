@@ -548,7 +548,7 @@ function cleanEl(el){
 async function copyJson(){const j=JSON.stringify(getConfig(),null,2);try{await navigator.clipboard.writeText(j)}catch{const t=document.createElement('textarea');t.value=j;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t)}showToast('JSON copied','content_copy')}
 async function deployConfig(){
     const token=document.getElementById('ghToken').value.trim();
-    if(!token&&location.hostname==='localhost'){
+    if(!token&&canUseLocalDeploy()){
         return deployConfigLocal();
     }
     if(!token){showToast('Enter a GitHub token first','warning',true);document.getElementById('ghToken').focus();return}
@@ -564,11 +564,16 @@ async function deployConfig(){
 async function deployConfigLocal(){
     setDeploy('deploying');
     try{
-        const r=await fetch('/api/deploy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({file:currentFile(),label:screens[activeScreen].label,config:getConfig()})});
+        const endpoint=location.protocol==='file:'?'http://localhost:8080/api/deploy':'/api/deploy';
+        const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({file:currentFile(),label:screens[activeScreen].label,config:getConfig()})});
         const data=await r.json().catch(()=>({}));
         if(r.ok){setDeploy('deployed');showToast(screens[activeScreen].label+' deployed via local GitHub auth','cloud_done');pollActionStatus('')}
         else{setDeploy('err');showToast('Deploy failed: '+(data.error||r.status),'error',true)}
     }catch(e){setDeploy('err');showToast('Deploy failed: '+e.message,'error',true)}
+}
+
+function canUseLocalDeploy(){
+    return location.hostname==='localhost'||location.hostname==='127.0.0.1'||location.protocol==='file:';
 }
 
 let deployTimer=null;let deployStartTime=0;

@@ -24,7 +24,12 @@ const types = {
 };
 
 function sendJson(res, status, body) {
-  res.writeHead(status, { 'Content-Type': 'application/json; charset=UTF-8' });
+  res.writeHead(status, {
+    'Content-Type': 'application/json; charset=UTF-8',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  });
   res.end(JSON.stringify(body));
 }
 
@@ -94,6 +99,15 @@ function serveStatic(req, res) {
 }
 
 http.createServer((req, res) => {
+  if (req.method === 'OPTIONS' && req.url === '/api/deploy') {
+    res.writeHead(204, {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    });
+    res.end();
+    return;
+  }
   if (req.method === 'POST' && req.url === '/api/deploy') {
     deploy(req, res);
     return;
